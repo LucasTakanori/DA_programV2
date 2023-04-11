@@ -6,7 +6,7 @@ import numpy as np
 
 def apply_vtlp(signal, vtlp_factor):
     # Calculate the mel spectrogram of the input signal
-    mel_spec = librosa.feature.melspectrogram(signal, sr=signal.fs, n_fft=2048, hop_length=512, n_mels=128)
+    mel_spec = librosa.feature.melspectrogram(signal, sr=sr, n_fft=2048, hop_length=512, n_mels=128)
 
     # Convert the mel spectrogram to dB units
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
@@ -37,7 +37,7 @@ def apply_vtlp(signal, vtlp_factor):
     return filtered_signal
 
 
-
+# https://pypi.org/project/audioread/
 
 # Load an audio file
 y, sr = librosa.load(librosa.example('nutcracker'))
