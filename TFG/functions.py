@@ -75,7 +75,7 @@ def splice_out(filename, outputfile, type, time_ranges, snr=10):
     else:
         print("Invalid type input")
 
-    librosa.output.write_wav(outputfile, signal, fs)
+    sf.write(outputfile, y, fs)  
 
 #BACK TO WAV?
 #test mp3compression
@@ -83,13 +83,13 @@ def splice_out(filename, outputfile, type, time_ranges, snr=10):
 #4->perceptual transparency
 #6->acceptable
 #8->bad
-def mp3compression(inputfile,quality=4):
-    outputfile=inputfile.split('.')[0]+"_"+str(quality)+".mp3"
-    os.system("ffmpeg -y -i " + inputfile +" -codec:a libmp3lame -q:a " + str(quality) + " " +outputfile)
-    os.system("rm "+ inputfile.split('.')[0]+"_"+str(quality)+".wav")
-
-    mp3towav(outputfile,inputfile.split('.')[0]+"_"+str(quality)+".wav")
+def mp3compression(inputfile,outputfile,quality=4):
+    auxoutputfile=inputfile.split('.')[0]+"_"+str(quality)+".mp3"
+    os.system("ffmpeg -y -i " + inputfile +" -codec:a libmp3lame -q:a " + str(quality) + " " +auxoutputfile)
     os.system("rm "+ outputfile)
+
+    mp3towav(auxoutputfile,outputfile)
+    os.system("rm "+ auxoutputfile)
 
 
 def clipping(filename, outputfile, percentile_threshold=10.0):
@@ -101,8 +101,7 @@ def clipping(filename, outputfile, percentile_threshold=10.0):
     print(lower_threshold)
     print(upper_threshold)
     samples = np.clip(samples, lower_threshold, upper_threshold)
-    pd.Series(samples).plot(figsize=(10, 5), lw=1, title="")
-    librosa.output.write_wav(outputfile, samples, fs)
+    sf.write(outputfile, samples, fs)  
 
 def bandpass_filter(data, lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
@@ -112,7 +111,7 @@ def bandpass_filter(data, lowcut, highcut, fs, order=5):
     filtered = lfilter(b, a, data)
     return filtered
 
-def equalizer (filename, outputfile , gain1=0, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0, gain7=0, gain8=0, gain9=0, gain10=0):
+def equalizer (filename, outputfile , gain1=0, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0, gain7=0):
     data, fs = load_file(filename)
     band1 = bandpass_filter(data, 20, 95, fs, order=2)* 10**(gain1/20)
     band2 = bandpass_filter(data, 91, 204, fs, order=3)*10**(gain2/20)
@@ -125,7 +124,7 @@ def equalizer (filename, outputfile , gain1=0, gain2=0, gain3=0, gain4=0, gain5=
     signal = band1 + band2 + band3 + band4 + band5 + band6 + band7 
 
     # Save output audio to file
-    librosa.output.write_wav(outputfile, signal, fs)    
+    sf.write(outputfile, signal, fs)   
 
 def vtlp_filters(fbank_mx, alpha=1.0, f_high=None):
     """
@@ -201,7 +200,7 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
                                                  length=len(y))
     
     # Save the output .wav file
-    write(output_wav_file, sr, y_hat)
+    sf.write(output_wav_file, y_hat, sr)
 
 def mp3towav(input,output):
     os.system("ffmpeg -i " + input + " -ar 44k " + output)

@@ -64,14 +64,56 @@ To use DA_programV2, import the necessary functions from the program. The main f
     The function calculates the lower and upper thresholds for clipping based on the specified percentile threshold. The lower threshold is calculated as the value below which a given percentage of the audio samples fall, and the upper threshold is calculated as the value above which a given percentage of the audio samples fall. The function then applies clipping to the audio samples by setting any samples below the lower threshold to the lower threshold value and any samples above the upper threshold to the upper threshold value. the output .wav file is saved using `librosa.output.write_wav`.
 
 Here are some examples of how to use these functions:
+
+## Original audio
+
+[Listen to audio](resources/upc_ca_ona_100000.wav)
+
+![Alt text](resources/upc_ca_ona_100000.png)
    
 `splice_out: max ranges: 8, max duration: 400ms, snr max: 40db`
         
+        splice_out("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000SPLICE1.wav",1,[(6, 6.2),(7.5 , 7.7),(10, 10.2)])
+
+[Listen to audio](resources/upc_ca_ona_100000SPLICE1.wav)
+
+![Alt text](resources/SPLICE1.png)
+
+        splice_out("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000SPLICE2.wav",2,[(6, 6.2),(7.5 , 7.7),(10, 10.2)])
+
+[Listen to audio](resources/upc_ca_ona_100000SPLICE2.wav)
+![Alt text](resources/SPLICE2.png)
+
+        splice_out("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000SPLICE3.wav",3,[(6, 6.2),(7.5 , 7.7),(10, 10.2)])
+
+[Listen to audio](resources/upc_ca_ona_100000SPLICE3.wav)
+![Alt text](resources/SPLICE3.png)
+
 `mp3compression: 0 (best) to 9 (worst) quality`
+
+        mp3compression("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000mp3.wav", 8)
+
+[Listen to audio](resources/upc_ca_ona_100000mp3.wav)
+![Alt text](resources/mp3.png)
 
 `vtlp: min alpha: 0.8, max alpha: 1.2`
 
+        vtlp("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000vtlp.wav",1.2)
+
+[Listen to audio](resources/upc_ca_ona_100000vtlp.wav)
+![Alt text](resources/vtlp.png)
+
 `equalizer: min gain: -15db, max gain 15db`
 
+        equalizer("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000EQ.wav",-15,-15,-15,-15,-15,-15,-15)
+
+[Listen to audio](resources/upc_ca_ona_100000EQ.wav)
+![Alt text](resources/EQ.png)
+
 `clipping: min clipping: 0%, max clipping: 40%`
+
+        clipping("../testfiles/upc_ca_ona_100000.wav","../resources/upc_ca_ona_100000Clipping.wav",5)
+
+[Listen to audio](resources/upc_ca_ona_100000Clipping.wav)
+![Alt text](resources/Clipping.png)
 
