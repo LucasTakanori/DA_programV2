@@ -86,6 +86,10 @@ def splice_out(filename, outputfile, type, time_ranges, snr=10):
 def mp3compression(inputfile,quality=4):
     outputfile=inputfile.split('.')[0]+"_"+str(quality)+".mp3"
     os.system("ffmpeg -y -i " + inputfile +" -codec:a libmp3lame -q:a " + str(quality) + " " +outputfile)
+    os.system("rm "+ inputfile.split('.')[0]+"_"+str(quality)+".wav")
+
+    mp3towav(outputfile,inputfile.split('.')[0]+"_"+str(quality)+".wav")
+    os.system("rm "+ outputfile)
 
 
 def clipping(filename, outputfile, percentile_threshold=10.0):
