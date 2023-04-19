@@ -67,7 +67,7 @@ Here are some examples of how to use these functions:
 
 ## Original audio
 
-[Listen to audio](resources/upc_ca_ona_100000.wav)
+[Listen to audio](testfiles/upc_ca_ona_100000.wav)
 
 ![Alt text](resources/upc_ca_ona_100000.png)
    
