@@ -4,3 +4,7 @@ ffmpy
 numpy 
 pandas
 matplotlib
+glob
+subprocess
+os
+scipy
