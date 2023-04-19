@@ -202,28 +202,41 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
 def mp3towav(input,output):
     os.system("ffmpeg -i " + input + " -ar 44k " + output)
 
-def visualize_signals(original, transformed):
-    y, fs1 = load_file(original)
-    y_tr, fs2 = load_file(transformed)
-
-    time = pd.Series(range(len(y))) / fs1
-    time1 = pd.Series(range(len(y_tr))) / fs2
-
-    plt.figure(figsize=(10, 8))
-
-    plt.subplot(2, 1, 1)
-    plt.plot(time, y, '-r', label=r"$Original (t)$")
-    plt.title('Original Signal')
-    plt.xlabel('time[s]')
-    plt.legend()
-    plt.grid()
-
-    plt.subplot(2, 1, 2)
-    plt.plot(time1, y_tr, '-b',label=r"$Transformed amplitude(t)$")
-    plt.title('Transformed Signal ')
-    plt.xlabel('time[s]')
-    plt.legend()
-    plt.grid()
+def plot_waveform_and_stft(original_file, transformed_file):
+    # Load the original audio file
+    y1, sr1 = librosa.load(original_file)
+    # Plot the waveform of the original audio file
+    plt.figure(figsize=(10, 6))
+    plt.subplot(2, 2, 1)
+    plt.title('Original Waveform')
+    librosa.display.waveshow(y1, sr=sr1)
     
+    # Compute and plot the STFT of the original audio file
+    D1 = librosa.stft(y1)
+    plt.subplot(2, 2, 2)
+    plt.title('Original STFT')
+    librosa.display.specshow(librosa.amplitude_to_db(np.abs(D1), ref=np.max), y_axis='log', x_axis='time', cmap='viridis', shading='gouraud')
+    plt.colorbar(format='%+2.0f dB')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    
+    # Load the transformed audio file
+    y2, sr2 = librosa.load(transformed_file)
+    # Plot the waveform of the transformed audio file
+    plt.subplot(2, 2, 3)
+    plt.title('Transformed Waveform')
+    librosa.display.waveshow(y2, sr=sr2)
+    
+    # Compute and plot the STFT of the transformed audio file
+    D2 = librosa.stft(y2)
+    plt.subplot(2, 2, 4)
+    plt.title('Transformed STFT')
+    librosa.display.specshow(librosa.amplitude_to_db(np.abs(D2), ref=np.max), y_axis='log', x_axis='time', cmap='viridis', shading='gouraud')
+    plt.colorbar(format='%+2.0f dB')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Frequency (Hz)')
+    
+    # Show the plots
     plt.tight_layout()
     plt.show()
+
