@@ -8,3 +8,5 @@ glob
 subprocess
 os
 scipy
+vosk
+torchmetrics
