@@ -12,3 +12,5 @@ vosk
 torchmetrics 
 random
 pydub
+tqdm
+contextlib

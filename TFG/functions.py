@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 
 import os
 
-import pydub
 from pydub import AudioSegment
 
 import scipy
@@ -24,6 +23,7 @@ from scipy import signal
 from scipy.signal import butter, lfilter
 import random
 
+import subprocess
 
 
 def load_file(filename):
@@ -74,7 +74,7 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
     
     random_ranges = []
     for i in range(times_to_apply):
-        random_timemax = random.uniform(time_ranges(0),time_ranges(1))
+        random_timemax = random.uniform(time_ranges[0],time_ranges[1])
         start = random.uniform(0,length-random_timemax)
         end =  start + random_timemax
         if end <= length:  # Verify if the range is within the file length
@@ -98,6 +98,11 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
         print("Invalid type input")
 
     sf.write(outputfile, y, fs)  
+    # Convert random_ranges from samples to seconds
+    random_ranges_seconds = [(start / fs, end / fs) for start, end in random_ranges]
+
+    # Print the output of random_ranges in seconds
+    print("Splicing COMPLETED with type: " + str(type) + " times applied: " + str(times_to_apply) + " with ranges: " + str(random_ranges_seconds))
 
 #BACK TO WAV?
 #test mp3compression
@@ -105,25 +110,32 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
 #4->perceptual transparency
 #6->acceptable
 #8->bad
-def mp3compression(inputfile,outputfile,quality=4):
-    auxoutputfile=inputfile.split('.')[0]+"_"+str(quality)+".mp3"
-    os.system("ffmpeg -y -i " + inputfile +" -codec:a libmp3lame -q:a " + str(quality) + " " +auxoutputfile)
-    os.system("rm "+ outputfile)
 
-    mp3towav(auxoutputfile,outputfile)
-    os.system("rm "+ auxoutputfile)
+
+def mp3compression(inputfile, outputfile, quality=4):
+    auxoutputfile = inputfile.split('.')[0] + "_" + str(quality) + ".mp3"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", inputfile, "-codec:a", "libmp3lame", "-q:a", str(quality), auxoutputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["rm", outputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    mp3towav(auxoutputfile, outputfile)
+    subprocess.run(["rm", auxoutputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    print("MP3 COMPRESSION COMPLETED with quality: " + str(quality))
+
+
 
 
 def clipping(filename, outputfile, percentile_threshold=10.0):
         samples, fs = load_file(filename)
         lower_percentile_threshold = percentile_threshold/2
-        print(lower_percentile_threshold)
+        #print(lower_percentile_threshold)
         lower_threshold, upper_threshold = np.percentile(
                 samples, [lower_percentile_threshold, 100 - lower_percentile_threshold])
-        print(lower_threshold)
-        print(upper_threshold)
+        #print(lower_threshold)
+        #print(upper_threshold)
         samples = np.clip(samples, lower_threshold, upper_threshold)
         sf.write(outputfile, samples, fs)
+        print("Clipping COMPLETED with percentile threshold: " +str(percentile_threshold))
 
 def bandpass_filter(data, lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
@@ -146,7 +158,8 @@ def equalizer (filename, outputfile , gain1=0, gain2=0, gain3=0, gain4=0, gain5=
     signal = band1 + band2 + band3 + band4 + band5 + band6 + band7 
 
     # Save output audio to file
-    sf.write(outputfile, signal, fs)   
+    sf.write(outputfile, signal, fs)
+    print("Equalizer COMPLETED with gains: " +str(gain1) + " " + str(gain2) + " " + str(gain3) + " " + str(gain4) + " " + str(gain5) + " " + str(gain6) + " " + str(gain7))
 
 def vtlp_filters(fbank_mx, alpha=1.0, f_high=None):
     """
@@ -223,9 +236,10 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
     
     # Save the output .wav file
     sf.write(output_wav_file, y_hat, sr)
+    print("VTLP COMPLETED with alpha: " +str(alpha))
 
-def mp3towav(input,output):
-    os.system("ffmpeg -i " + input + " -ar 44k " + output)
+def mp3towav(input, output):
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "16000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def plot_waveform_and_stft(original_file, transformed_file):
     # Load the original audio file
