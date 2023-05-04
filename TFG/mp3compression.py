@@ -9,7 +9,7 @@ class MP3Compression(AudioAugmentation):
 
     def apply(self, input_file, output_file, quality):
         # Apply clipping augmentation here
-        return mp3compression(input_file, output_file, quality)
+        mp3compression(input_file, output_file, quality)
 
     def randomize(self):
         quality = random.uniform(self.min_quality, self.max_quality)

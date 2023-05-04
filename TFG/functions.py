@@ -1,3 +1,4 @@
+import time
 import librosa
 import librosa.display
 import librosa.util
@@ -217,12 +218,16 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
     n_mels = 256
     fbank_mx = librosa.filters.mel(sr=sr, n_fft=n_fft, n_mels=n_mels)
     
+    
     # Apply VTLP to the filterbank matrix
     warped_filters = vtlp_filters(fbank_mx, alpha=alpha, f_high=f_high)
     
+     
     # Compute the mel spectrogram using the warped filterbank matrix
     S = np.dot(warped_filters, np.abs(D))
     
+       
+    start = time.time()
     # Invert the mel spectrogram to audio
     y_hat = librosa.feature.inverse.mel_to_audio(S,
                                                  sr=sr,
@@ -233,7 +238,8 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
                                                  power=1,
                                                  n_iter=128,
                                                  length=len(y))
-    
+    end = time.time()
+    print(end - start)
     # Save the output .wav file
     sf.write(output_wav_file, y_hat, sr)
     print("VTLP COMPLETED with alpha: " +str(alpha))
