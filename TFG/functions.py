@@ -170,27 +170,28 @@ def vtlp_filters(fbank_mx, alpha=1.0, f_high=None):
     :return: warped filterbank matrix
     """
     n_filters, n_fft = fbank_mx.shape
-    warped_filters = np.zeros((n_filters, n_fft))
     
     if f_high is None:
         f_high = n_fft / 2
     
-    for m in range(n_filters):
-        for k in range(n_fft):
-            f = (n_fft - 1) * k / (n_fft - 1)
-            if f < f_high / 2:
-                f_warped = alpha * f
-            elif f < f_high:
-                f_warped = alpha * f + (1 - alpha) * (f_high / 2)
-            else:
-                f_warped = f
-            
-            k_warped = int(n_fft * f_warped / (n_fft - 1))
-            if k_warped < n_fft:
-                warped_filters[m, k_warped] += fbank_mx[m, k]
+    # Create a frequency array
+    freqs = np.linspace(0, n_fft - 1, n_fft)
+    
+    # Compute the warped frequencies
+    f_warped = np.where(freqs < f_high / 2, alpha * freqs, freqs)
+    f_warped = np.where((freqs >= f_high / 2) & (freqs < f_high), alpha * freqs + (1 - alpha) * (f_high / 2), f_warped)
+    
+    # Compute the warped indices
+    k_warped = np.floor(n_fft * f_warped / (n_fft - 1)).astype(int)
+    
+    # Create a mask for valid indices
+    valid_indices_mask = k_warped < n_fft
+    
+    # Calculate the warped filterbank matrix
+    warped_filters = np.zeros((n_filters, n_fft))
+    warped_filters[np.arange(n_filters)[:, None], k_warped] = fbank_mx[np.arange(n_filters)[:, None], np.arange(n_fft)] * valid_indices_mask
     
     return warped_filters
-
 
 
 def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
@@ -205,8 +206,8 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
     y, sr = librosa.load(input_wav_file)
     
     # Compute the spectrogram
-    n_fft = 2048
-    hop_length = 512
+    n_fft = 1024
+    hop_length = 256
     win_length = n_fft
     window = scipy.signal.windows.hann(win_length, sym=False)
     
@@ -214,7 +215,7 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
                      win_length=win_length, window=window)
     
     # Compute the filterbank matrix
-    n_mels = 256
+    n_mels = 128
     fbank_mx = librosa.filters.mel(sr=sr, n_fft=n_fft, n_mels=n_mels)
     
     # Apply VTLP to the filterbank matrix
