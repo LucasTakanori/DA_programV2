@@ -4,13 +4,9 @@ ffmpy
 numpy 
 pandas
 matplotlib
-glob
-subprocess
-os
 scipy
 vosk
 torchmetrics 
-random
 pydub
 tqdm
 contextlib
