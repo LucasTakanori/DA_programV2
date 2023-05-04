@@ -15,16 +15,26 @@ import matplotlib.pyplot as plt
 
 import os
 
+import pydub
 from pydub import AudioSegment
 
 import scipy
 from scipy.io.wavfile import write
 from scipy import signal
 from scipy.signal import butter, lfilter
+import random
+
 
 
 def load_file(filename):
     return librosa.load(glob(filename)[0])
+
+
+def audio_length(audio_file):
+    audio = AudioSegment.from_file(audio_file)
+    length = len(audio) / 1000
+    return length
+
 
 def calculate_rms(samples):
     """Given a numpy array of audio samples, return its Root Mean Square (RMS)."""
@@ -55,22 +65,34 @@ def set_noise(y, noise_rms):
     return noise
 
 
-def splice_out(filename, outputfile, type, time_ranges, snr=10):
+def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10):
     y, fs = load_file(filename)
-
+    length = audio_length(filename)
     # Convert time_ranges from seconds to samples
-    ranges = [(int(start * fs), int(end * fs)) for start, end in time_ranges]
+    #ranges = [(int(start * fs), int(end * fs)) for start, end in time_ranges]
+
+    
+    random_ranges = []
+    for i in range(times_to_apply):
+        random_timemax = random.uniform(time_ranges(0),time_ranges(1))
+        start = random.uniform(0,length-random_timemax)
+        end =  start + random_timemax
+        if end <= length:  # Verify if the range is within the file length
+            random_ranges.append((int(start * fs), int(end * fs)))
+
+
+
 
     if type == 1:
-        for start, end in ranges:
+        for start, end in random_ranges:
             y = np.delete(y, np.s_[start:end])
     elif type == 2:
-        for start, end in ranges:
+        for start, end in random_ranges:
             y[start:end] = 0
     elif type == 3:
         rms = calculate_rms(y)
         noise_rms = calculate_desired_noise_rms(rms, snr)
-        for start, end in ranges:
+        for start, end in random_ranges:
             y[start:end] = set_noise(y[start:end], noise_rms)
     else:
         print("Invalid type input")
@@ -93,15 +115,15 @@ def mp3compression(inputfile,outputfile,quality=4):
 
 
 def clipping(filename, outputfile, percentile_threshold=10.0):
-    samples, fs = load_file(filename)
-    lower_percentile_threshold = percentile_threshold/2
-    print(lower_percentile_threshold)
-    lower_threshold, upper_threshold = np.percentile(
-            samples, [lower_percentile_threshold, 100 - lower_percentile_threshold])
-    print(lower_threshold)
-    print(upper_threshold)
-    samples = np.clip(samples, lower_threshold, upper_threshold)
-    sf.write(outputfile, samples, fs)  
+        samples, fs = load_file(filename)
+        lower_percentile_threshold = percentile_threshold/2
+        print(lower_percentile_threshold)
+        lower_threshold, upper_threshold = np.percentile(
+                samples, [lower_percentile_threshold, 100 - lower_percentile_threshold])
+        print(lower_threshold)
+        print(upper_threshold)
+        samples = np.clip(samples, lower_threshold, upper_threshold)
+        sf.write(outputfile, samples, fs)
 
 def bandpass_filter(data, lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs

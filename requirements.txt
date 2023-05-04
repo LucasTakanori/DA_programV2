@@ -9,4 +9,6 @@ subprocess
 os
 scipy
 vosk
-torchmetrics
+torchmetrics 
+random
+pydub

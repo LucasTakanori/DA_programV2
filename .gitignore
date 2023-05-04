@@ -1,3 +1,9 @@
+*.wav:Zone.Identifier
+/testfiles/CV000/CV000
+/testfiles/CV000/CV000WAV
+
+testfiles/CV000/*.wav:Zone.Identifier
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
