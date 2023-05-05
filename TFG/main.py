@@ -111,6 +111,11 @@ with open(tsv_file_path, 'r') as tsv_file:
 total_augmentations = len(audio_files) * num_augmentations
 progress_bar = tqdm(total=total_augmentations, desc="Augmenting", unit="file", position=0, leave=True)
 
+def process_file(input_file, output_file, method_instance, params):
+    method_instance.apply(input_file, output_file, *params)
+    
+file_queue = []
+
 # Open the output TSV file using csv.writer
 with open(output_tsv_path, "a", newline="") as tsv_outfile:
     tsv_writer = csv.writer(tsv_outfile, delimiter="\t")
@@ -158,13 +163,15 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             message = ""
             with io.StringIO() as buf, redirect_stdout(buf):
                 params = method_instance.randomize()
-                method_instance.apply(wav_input_file, output_file, *params)
+                #method_instance.apply(wav_input_file, output_file, *params)
+                file_queue.append((wav_input_file, output_file, method_instance, params, method_name, audio_file))
+                
                 message = buf.getvalue().strip()
 
-            score = pesq_from_paths(wav_input_file, output_file)
+            #score = pesq_from_paths(wav_input_file, output_file)
 
             # Write the relevant information to the TSV file
-            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), score])
+            #tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), 0])
 
             # Print the message without interfering with the progress bar
             progress_bar.write(clear_border + message)
@@ -173,3 +180,21 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             progress_bar.update(1)  # Update the progress bar
 
 progress_bar.close()  # Close the progress bar when the process is complete
+
+
+from joblib import Parallel, delayed
+
+n_jobs = -1
+
+Parallel(n_jobs=n_jobs)(
+    delayed(process_file)(input_file, output_file, method, params)
+    for input_file, output_file, method, params, _, _ in file_queue
+)
+
+# calcular scores
+with open(output_tsv_path, "a", newline="") as tsv_outfile:
+    tsv_writer = csv.writer(tsv_outfile, delimiter="\t")
+    for val in file_queue:
+        input_file, output_file, _, params, method_name, audio_file = val
+        score = pesq_from_paths(input_file, output_file)
+        tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), score])
