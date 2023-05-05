@@ -1,4 +1,5 @@
 import time
+import wave
 import librosa
 import librosa.display
 import librosa.util
@@ -290,6 +291,14 @@ def plot_waveform_and_stft(original_file, transformed_file):
     plt.show()
 
 def get_pesq_and_fwSNRseg(ref_file_path, deg_file_path):
-    pesq_score = pesq_from_paths(ref_file_path, deg_file_path)
+    #pesq_score = pesq_from_paths(ref_file_path, deg_file_path)
     fwSNRseg_score = calculate_fwSNRseg(deg_file_path)
-    return pesq_score, fwSNRseg_score
+    return fwSNRseg_score #,pesq_score 
+
+def convert_to_16k(input_file):
+    with wave.open(input_file, "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        if frame_rate != 16000:
+            audio = AudioSegment.from_wav(input_file)
+            audio_16k = audio.set_frame_rate(16000)
+            audio_16k.export(input_file, format="wav")

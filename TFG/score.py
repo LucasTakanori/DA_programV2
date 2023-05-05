@@ -20,10 +20,6 @@ def calculate_fwSNRseg(audio_path, seg_dur):
     fwSNRseg = np.mean(snr_segments)
     return fwSNRseg
 
-audio_path = '../testfiles/upc_ca_ona_100000.wav'
-seg_dur = 0.3 # in seconds
-score_in_dBs = calculate_fwSNRseg(audio_path, seg_dur)
-print(score_in_dBs)
 
 
 import numpy as np
@@ -44,7 +40,7 @@ def frequency_spectrum(x, sf):
 
 def calculate_fwSNRseg(audio_file):
     data, fs = sf.read(audio_file, dtype='float32')
-    y = data[:, 0]  # use the first channel (or take their average, alternatively)
+    y = data  # use the first channel (or take their average, alternatively)
     frq, X = frequency_spectrum(y, fs)
     
     segment_size = 256
@@ -68,7 +64,3 @@ def calculate_fwSNRseg(audio_file):
     # Calculate fwSNRseg
     fwSNRseg = np.mean(snr_list)
     return fwSNRseg
-
-audio_file = 'your_audio_file.wav'
-fwSNRseg_score = calculate_fwSNRseg(audio_file)
-print(fwSNRseg_score)

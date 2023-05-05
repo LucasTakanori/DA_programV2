@@ -4,6 +4,9 @@ import sys
 import random
 import shutil
 import csv
+import wave
+import soundfile
+import librosa
 from clipping import Clipping
 from vltp import VLTP
 from equalizer import Equalizer
@@ -118,10 +121,12 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
     border = "=" * 150
     clear_border = _term_move_up() + "\r" + " " * len(border) + "\r"
 
-
     for audio_file in audio_files:
         input_file = os.path.join(input_folder, audio_file)
+        with wave.open(input_file, "rb") as wave_file:
+            frame_rate = wave_file.getframerate()
 
+        #print(f"Frame rate: {frame_rate} Hz")
         # Check if the file is MP3 and convert it to WAV with a sample rate of 16k
         if audio_file.lower().endswith(".mp3"):
             mp3_audio = AudioSegment.from_mp3(input_file)
@@ -129,7 +134,15 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             wav_input_file = os.path.join(input_folder, wav_audio_file)
             mp3_audio.set_frame_rate(16000).export(wav_input_file, format="wav")
             os.remove(input_file)  # Delete the original MP3 file
+        elif frame_rate != 16000:
+            # Load the audio data and downsample it to 16kHz
+            y, _ = librosa.load(input_file, sr=16000)
             
+            # Save the downsampled audio as a new WAV file
+            soundfile.write(wav_input_file, y, 16000, subtype='PCM_16')
+            
+            # Delete the original input file
+            os.remove(input_file)    
         else:
             wav_input_file = input_file
             wav_audio_file = audio_file
@@ -152,10 +165,10 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
                 method_instance.apply(wav_input_file, output_file, *params)
                 message = buf.getvalue().strip()
 
-            scores = get_pesq_and_fwSNRseg(wav_input_file, output_file)
+            #scores = get_pesq_and_fwSNRseg(wav_input_file, output_file)
 
             # Write the relevant information to the TSV file
-            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), scores])
+            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params)])#, scores])
 
             # Print the message without interfering with the progress bar
             progress_bar.write(clear_border + message)
