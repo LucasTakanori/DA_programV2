@@ -26,6 +26,10 @@ import random
 
 import subprocess
 
+from PESQ import pesq_from_paths
+from score import calculate_fwSNRseg
+
+OUTPUT_SAMPLING_RATE = 16000
 
 def load_file(filename):
     return librosa.load(glob(filename)[0])
@@ -98,7 +102,7 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
     else:
         print("Invalid type input")
 
-    sf.write(outputfile, y, fs)  
+    sf.write(outputfile, y, OUTPUT_SAMPLING_RATE)  
     # Convert random_ranges from samples to seconds
     random_ranges_seconds = [(start / fs, end / fs) for start, end in random_ranges]
 
@@ -135,7 +139,7 @@ def clipping(filename, outputfile, percentile_threshold=10.0):
         #print(lower_threshold)
         #print(upper_threshold)
         samples = np.clip(samples, lower_threshold, upper_threshold)
-        sf.write(outputfile, samples, fs)
+        sf.write(outputfile, samples, OUTPUT_SAMPLING_RATE)
         print("Clipping COMPLETED with percentile threshold: " +str(percentile_threshold))
 
 def bandpass_filter(data, lowcut, highcut, fs, order=5):
@@ -159,7 +163,7 @@ def equalizer (filename, outputfile , gain1=0, gain2=0, gain3=0, gain4=0, gain5=
     signal = band1 + band2 + band3 + band4 + band5 + band6 + band7 
 
     # Save output audio to file
-    sf.write(outputfile, signal, fs)
+    sf.write(outputfile, signal, OUTPUT_SAMPLING_RATE)
     print("Equalizer COMPLETED with gains: " +str(gain1) + " " + str(gain2) + " " + str(gain3) + " " + str(gain4) + " " + str(gain5) + " " + str(gain6) + " " + str(gain7))
 
 def vtlp_filters(fbank_mx, alpha=1.0, f_high=None):
@@ -241,7 +245,7 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
     end = time.time()
     print(end - start)
     # Save the output .wav file
-    sf.write(output_wav_file, y_hat, sr)
+    sf.write(output_wav_file, y_hat, OUTPUT_SAMPLING_RATE)
     print("VTLP COMPLETED with alpha: " +str(alpha))
 
 def mp3towav(input, output):
@@ -285,3 +289,7 @@ def plot_waveform_and_stft(original_file, transformed_file):
     plt.tight_layout()
     plt.show()
 
+def get_pesq_and_fwSNRseg(ref_file_path, deg_file_path):
+    pesq_score = pesq_from_paths(ref_file_path, deg_file_path)
+    fwSNRseg_score = calculate_fwSNRseg(deg_file_path)
+    return pesq_score, fwSNRseg_score

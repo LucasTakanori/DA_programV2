@@ -13,6 +13,9 @@ from tqdm import tqdm
 from tqdm.utils import _term_move_up
 from contextlib import contextmanager
 from pydub import AudioSegment
+from PESQ import *
+from score import *
+from functions import get_pesq_and_fwSNRseg
 
 @contextmanager
 def redirect_stdout(new_target):
@@ -126,6 +129,7 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             wav_input_file = os.path.join(input_folder, wav_audio_file)
             mp3_audio.set_frame_rate(16000).export(wav_input_file, format="wav")
             os.remove(input_file)  # Delete the original MP3 file
+            
         else:
             wav_input_file = input_file
             wav_audio_file = audio_file
@@ -148,8 +152,10 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
                 method_instance.apply(wav_input_file, output_file, *params)
                 message = buf.getvalue().strip()
 
+            scores = get_pesq_and_fwSNRseg(wav_input_file, output_file)
+
             # Write the relevant information to the TSV file
-            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params)])
+            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), scores])
 
             # Print the message without interfering with the progress bar
             progress_bar.write(clear_border + message)

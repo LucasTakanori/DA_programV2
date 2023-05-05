@@ -15,7 +15,7 @@ def pesq_from_paths(ref_file_path, deg_file_path):
     fs_deg, deg_audio = read_audio_file(deg_file_path)
 
     # Ensure the sampling frequencies are the same
-    assert fs_ref == fs_deg, "Sampling frequencies must be the same"
+    assert fs_ref == fs_deg, "Sampling frequencies must be the same" + str(fs_ref) + str(fs_deg)
 
     # Choose the mode based on the sampling frequency
     mode = 'wb' if fs_ref == 16000 else 'nb'
