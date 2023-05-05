@@ -34,7 +34,7 @@ methods = {
     '2': ('vltp', VLTP(min_alpha=0.7, max_alpha=1.4)),
     '3': ('equalizer', Equalizer(gain_min=-40, gain_max=40)),
     '4': ('mp3_compression', MP3Compression(min_quality=0, max_quality=9)),
-    '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=8, min_snr=0, max_snr=40))
+    '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=2, min_snr=0, max_snr=40))
 }
 
 selected_methods_input = "1,3,4,5"#input("Enter the augmentation method numbers (1-5) separated by commas: ")
