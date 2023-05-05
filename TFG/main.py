@@ -21,7 +21,6 @@ def redirect_stdout(new_target):
     finally:
         sys.stdout = old_target
 
-
 # Gather user input
 methods = {
     '1': ('clipping', Clipping(min_percentile_threshold=0, max_percentile_threshold=40)),
@@ -32,6 +31,7 @@ methods = {
 }
 
 selected_methods_input = input("Enter the augmentation method numbers (1-5) separated by commas: ")
+selected_methods_input = "1,2,3,4,5"
 
 # Validate the selected_methods
 try:
@@ -40,7 +40,9 @@ except ValueError:
     print("Error: Invalid input format. Please enter method numbers (1-5) separated by commas.")
     exit()
 
+
 input_folder = input("Enter the input folder path: ")
+input_folder = "../testfiles/UPC_CA_ONA"
 
 # Validate the input folder
 if not os.path.isdir(input_folder):
@@ -49,6 +51,7 @@ if not os.path.isdir(input_folder):
 
 
 output_folder = input("Enter the output folder path: ")
+output_folder = "../testfiles/UPC_CA_ONA_plus"
 
 # Validate the output folder
 if not os.path.exists(output_folder):
@@ -61,7 +64,8 @@ if len(os.listdir(output_folder)) > 0:
     os.makedirs(new_subfolder, exist_ok=True)
     output_folder = new_subfolder
 
-num_augmentations = int(input("Enter the number of times you want to augment the database: "))
+#num_augmentations = int(input("Enter the number of times you want to augment the database: "))
+num_augmentations = 2
 
 # Validate the num_augmentations
 try:
@@ -84,6 +88,12 @@ progress_bar = tqdm(total=total_augmentations, desc="Augmenting", unit="file", p
 border = "=" * 50
 clear_border = _term_move_up() + "\r" + " " * len(border) + "\r"
 
+
+def process_file(input_file, output_file, method_instance):
+    method_instance.apply(input_file, output_file, *method_instance.randomize())
+    
+file_queue = []
+
 for audio_file in audio_files:
     input_file = os.path.join(input_folder, audio_file)
     
@@ -100,7 +110,7 @@ for audio_file in audio_files:
         # Capture the augmentation method's print output
         message = ""
         with io.StringIO() as buf, redirect_stdout(buf):
-            method_instance.apply(input_file, output_file, *method_instance.randomize())
+            file_queue.append((input_file, output_file, method_instance))
             message = buf.getvalue().strip()
 
         # Print the message without interfering with the progress bar
@@ -110,3 +120,12 @@ for audio_file in audio_files:
         progress_bar.update(1)  # Update the progress bar
 
 progress_bar.close()  # Close the progress bar when the process is complete
+
+from joblib import Parallel, delayed
+
+n_jobs = -1
+
+Parallel(n_jobs=n_jobs)(
+    delayed(process_file)(input_file, output_file, method)
+    for input_file, output_file, method in file_queue
+)
