@@ -27,8 +27,8 @@ import random
 
 import subprocess
 
-from PESQ import pesq_from_paths
-from score import calculate_fwSNRseg
+#from PESQ import pesq_from_paths
+#from score import calculate_fwSNRseg
 
 OUTPUT_SAMPLING_RATE = 16000
 
@@ -290,10 +290,10 @@ def plot_waveform_and_stft(original_file, transformed_file):
     plt.tight_layout()
     plt.show()
 
-def get_pesq_and_fwSNRseg(ref_file_path, deg_file_path):
+#def get_pesq_and_fwSNRseg(ref_file_path, deg_file_path):
     #pesq_score = pesq_from_paths(ref_file_path, deg_file_path)
-    fwSNRseg_score = calculate_fwSNRseg(deg_file_path)
-    return fwSNRseg_score #,pesq_score 
+    #fwSNRseg_score = calculate_fwSNRseg(deg_file_path)
+    #return fwSNRseg_score #,pesq_score 
 
 def convert_to_16k(input_file):
     with wave.open(input_file, "rb") as wave_file:
