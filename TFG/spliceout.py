@@ -16,7 +16,8 @@ class spliceout(AudioAugmentation):
 
     def apply(self, input_file, output_file, types, times_to_apply, time_ranges, snr):
         # Apply SpliceOut augmentation here
-        return splice_out(input_file, output_file, types, times_to_apply , time_ranges, snr)
+        splice_out(input_file, output_file, types, times_to_apply , time_ranges, snr)
+
 
     
 

@@ -7,8 +7,7 @@ class VLTP(AudioAugmentation):
         self.max_alpha = max_alpha
 
     def apply(self, input_file, output_file, alpha):
-        # Apply VLTP augmentation here
-        return vtlp(input_file, output_file, alpha, f_high=None)
+        vtlp(input_file, output_file, alpha=alpha)
 
     def randomize(self):
         alpha = random.uniform(self.min_alpha, self.max_alpha)

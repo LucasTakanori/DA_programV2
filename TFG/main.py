@@ -3,6 +3,7 @@ import os
 import sys
 import random
 import shutil
+import csv
 from clipping import Clipping
 from vltp import VLTP
 from equalizer import Equalizer
@@ -11,6 +12,10 @@ from mp3compression import MP3Compression
 from tqdm import tqdm
 from tqdm.utils import _term_move_up
 from contextlib import contextmanager
+from pydub import AudioSegment
+from PESQ import *
+from score import *
+from functions import get_pesq_and_fwSNRseg
 
 @contextmanager
 def redirect_stdout(new_target):
@@ -30,8 +35,7 @@ methods = {
     '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=8, min_snr=0, max_snr=40))
 }
 
-selected_methods_input = input("Enter the augmentation method numbers (1-5) separated by commas: ")
-selected_methods_input = "1,2,3,4,5"
+selected_methods_input = "1,3,4,5"#input("Enter the augmentation method numbers (1-5) separated by commas: ")
 
 # Validate the selected_methods
 try:
@@ -40,9 +44,17 @@ except ValueError:
     print("Error: Invalid input format. Please enter method numbers (1-5) separated by commas.")
     exit()
 
+tsv_file_path = "../testfiles/CV000/CV000WAV/cleanCV000.tsv"#input("Enter the TSV file path: ")
 
-input_folder = input("Enter the input folder path: ")
-input_folder = "../testfiles/UPC_CA_ONA"
+# Validate the TSV file
+if not os.path.isfile(tsv_file_path):
+    print("Error: The TSV file does not exist.")
+    exit()
+
+
+
+
+input_folder = "../testfiles/CV000/CV000WAV"#input("Enter the input folder path: ")
 
 # Validate the input folder
 if not os.path.isdir(input_folder):
@@ -50,13 +62,16 @@ if not os.path.isdir(input_folder):
     exit()
 
 
-output_folder = input("Enter the output folder path: ")
-output_folder = "../testfiles/UPC_CA_ONA_plus"
+output_folder = "../testfiles/tt"#input("Enter the output folder path: ")
 
 # Validate the output folder
 if not os.path.exists(output_folder):
     os.makedirs(output_folder, exist_ok=True)
 
+output_tsv_path = "../testfiles/tt/output.tsv"  #input("Enter the TSV output file path: ")
+
+if os.path.exists(output_tsv_path):
+    os.remove(output_tsv_path)
 
 # Check if the output folder has files, and create a subfolder if necessary
 if len(os.listdir(output_folder)) > 0:
@@ -64,8 +79,7 @@ if len(os.listdir(output_folder)) > 0:
     os.makedirs(new_subfolder, exist_ok=True)
     output_folder = new_subfolder
 
-#num_augmentations = int(input("Enter the number of times you want to augment the database: "))
-num_augmentations = 2
+num_augmentations = 2#int(input("Enter the number of times you want to augment the database: "))
 
 # Validate the num_augmentations
 try:
@@ -78,6 +92,16 @@ except ValueError:
 
 # Prepare the list of audio files
 audio_files = [f for f in os.listdir(input_folder) if f.endswith('.wav')]
+
+audio_files = []
+transcripts = {}
+
+with open(tsv_file_path, 'r') as tsv_file:
+    tsv_reader = csv.reader(tsv_file, delimiter='\t')
+    for row in tsv_reader:
+        audio_file, transcript = row
+        audio_files.append(audio_file)
+        transcripts[audio_file] = transcript
 
 
 
