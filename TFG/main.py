@@ -64,13 +64,13 @@ if not os.path.isdir(input_folder):
     exit()
 
 
-output_folder = "../testfiles/tt"#input("Enter the output folder path: ")
+output_folder = "../testfiles/test"#input("Enter the output folder path: ")
 
 # Validate the output folder
 if not os.path.exists(output_folder):
     os.makedirs(output_folder, exist_ok=True)
 
-output_tsv_path = "../testfiles/tt/output.tsv"  #input("Enter the TSV output file path: ")
+output_tsv_path = "../testfiles/test/output.tsv"  #input("Enter the TSV output file path: ")
 
 if os.path.exists(output_tsv_path):
     os.remove(output_tsv_path)
@@ -164,7 +164,7 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             score = pesq_from_paths(wav_input_file, output_file)
 
             # Write the relevant information to the TSV file
-            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), score])
+            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, str(params), str(score).replace("tensor(", "").replace(")", "")])
 
             # Print the message without interfering with the progress bar
             progress_bar.write(clear_border + message)
