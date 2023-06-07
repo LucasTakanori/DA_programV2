@@ -22,7 +22,7 @@ from pydub import AudioSegment
 import scipy
 from scipy.io.wavfile import write
 from scipy import signal
-from scipy.signal import butter, lfilter
+from scipy.signal import butter, lfilter, filtfilt
 import random
 
 import subprocess
@@ -249,6 +249,85 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
     # Save the output .wav file
     sf.write(output_wav_file, y_hat, sr)
     print("VTLP COMPLETED with alpha: " +str(alpha))
+
+
+
+def pitch_shift(filename, output_file, pitch_factor):
+    # Load the audio file
+    audio, sample_rate = librosa.load(filename, sr=None)
+
+    # Convert the pitch factor to semitones
+    pitch_semitones = 12 * np.log2(pitch_factor)
+
+    # Apply pitch shifting to the whole audio file
+    shifted_audio = librosa.effects.pitch_shift(audio, sample_rate, n_steps=pitch_semitones)
+
+    # Save the transformed audio file
+    if output_file:
+        sf.write(output_file, shifted_audio, sample_rate)
+    else:
+        return shifted_audio, sample_rate
+
+def add_white_noise(input_filename, output_filename, desired_snr):
+    # Read the input audio file
+    signal, sr = librosa.load(input_filename, sr=None)
+
+    # Remove silence from the start and end of the signal
+    trimmed_signal, _ = librosa.effects.trim(signal)
+
+    # Generate white noise
+    noise = np.random.normal(0, 1, signal.shape)
+
+    # Calculate the signal and noise power
+    signal_power = np.sum(trimmed_signal ** 2) / trimmed_signal.size
+    noise_power = np.sum(noise ** 2) / noise.size
+
+    # Calculate the scaling factor for the desired SNR level
+    scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (-desired_snr / 10))
+
+    # Scale the noise
+    noise_scaled = noise * scaling_factor
+
+    # Add the scaled white noise to the trimmed signal
+    noisy_signal = signal + noise_scaled
+
+    # Save the modified audio signal to the output file
+    sf.write(output_filename, noisy_signal, sr)
+
+def time_stretch(filename, speed_factor, output_file=None):
+    # Load the audio file
+    audio, sample_rate = librosa.load(filename, sr=None)
+
+    # Apply time stretching to the whole audio file
+    stretched_audio = librosa.effects.time_stretch(audio, speed_factor)
+
+    # Save the transformed audio file
+    if output_file:
+        sf.write(output_file, stretched_audio, sample_rate)
+    else:
+        return stretched_audio, sample_rate
+    
+def frequency_mask(filename, output_file=None, frequency_center=None, width=None):
+    # Load the audio file
+    audio, sample_rate = librosa.load(filename, sr=None)
+
+    # Design a band-stop filter
+    lowcut = frequency_center - width / 2
+    highcut = frequency_center + width / 2
+    nyquist = 0.5 * sample_rate
+    low = lowcut / nyquist
+    high = highcut / nyquist
+    order = 6
+    b, a = butter(order, [low, high], btype='bandstop')
+
+    # Apply the filter to the audio
+    masked_audio = filtfilt(b, a, audio)
+
+    # Save the transformed audio file
+    if output_file:
+        sf.write(output_file, masked_audio, sample_rate)
+    else:
+        return masked_audio, sample_rate
 
 def mp3towav(input, output):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "16000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

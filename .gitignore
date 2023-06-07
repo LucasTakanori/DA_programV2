@@ -3,6 +3,11 @@
 /testfiles/CV000/CV000WAV
 /testfiles/
 testfiles/CV000/*.wav:Zone.Identifier
+DATABASE/SNR0/*.wav
+DATABASE/SNR10/*.wav
+DATABASE/SNR20/*.wav
+DATABASE/SNR30/*.wav
+DATABASE/SNR40/*.wav
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

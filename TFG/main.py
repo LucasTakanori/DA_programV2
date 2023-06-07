@@ -12,6 +12,10 @@ from vltp import VLTP
 from equalizer import Equalizer
 from spliceout import spliceout
 from mp3compression import MP3Compression
+from pitch_shift import Pitch_shift
+from add_white_noise import Add_white_noise
+from time_stretch import Time_stretch
+from frequency_mask import Frequency_Mask
 from tqdm import tqdm
 from tqdm.utils import _term_move_up
 from contextlib import contextmanager
@@ -34,16 +38,20 @@ methods = {
     '2': ('vltp', VLTP(min_alpha=0.7, max_alpha=1.4)),
     '3': ('equalizer', Equalizer(gain_min=-40, gain_max=40)),
     '4': ('mp3_compression', MP3Compression(min_quality=0, max_quality=9)),
-    '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=2, min_snr=0, max_snr=40))
+    '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=2, min_snr=0, max_snr=40)),
+    '6': ('pitch_shift', Pitch_shift(min_shift=0.5, max_shift=2)),
+    '7': ('white_noise', Add_white_noise(min_snr=0, max_snr=40)),
+    '8': ('time_stretch', Time_stretch(min_factor=0.3, max_factor=3)),
+    '9': ('frequency_mask', Frequency_Mask(min_frequency_center = 100, max_frequency_center = 4000))
 }
 
-selected_methods_input = "1,3,4,5"#input("Enter the augmentation method numbers (1-5) separated by commas: ")
+selected_methods_input = "1,3,4,5,6,7,8,9"#input("Enter the augmentation method numbers (1-5) separated by commas: ")
 
 # Validate the selected_methods
 try:
-    selected_methods = [x.strip() for x in selected_methods_input.split(",") if x.strip().isdigit() and 1 <= int(x.strip()) <= 5]
+    selected_methods = [x.strip() for x in selected_methods_input.split(",") if x.strip().isdigit() and 1 <= int(x.strip()) <= 9]
 except ValueError:
-    print("Error: Invalid input format. Please enter method numbers (1-5) separated by commas.")
+    print("Error: Invalid input format. Please enter method numbers (1-8) separated by commas.")
     exit()
 
 tsv_file_path = "../testfiles/CV000/CV000WAV/cleanCV000.tsv"#input("Enter the TSV file path: ")
