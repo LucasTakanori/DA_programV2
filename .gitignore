@@ -9,6 +9,36 @@ DATABASE/SNR20/*.wav
 DATABASE/SNR30/*.wav
 DATABASE/SNR40/*.wav
 
+DATABASE/clipping5/*.wav
+DATABASE/clipping10/*.wav
+DATABASE/clipping20/*.wav
+DATABASE/clipping30/*.wav
+DATABASE/clipping40/*.wav
+
+DATABASE/shift11/*
+DATABASE/shift09/*
+DATABASE/shift08/*
+DATABASE/shift1/*
+DATABASE/shift12/*
+
+DATABASE/quality0/*
+DATABASE/quality4/*
+DATABASE/quality6/*
+DATABASE/quality9/*
+
+DATABASE/stretch1/*
+DATABASE/stretch2/*
+DATABASE/stretch05/*
+DATABASE/stretch15/*
+DATABASE/stretch075/*
+DATABASE/stretch08/*
+DATABASE/stretch09/*
+DATABASE/stretch11/*
+DATABASE/stretch12/*
+
+DATABASE/stretch/*
+DATABASE/output_folder/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

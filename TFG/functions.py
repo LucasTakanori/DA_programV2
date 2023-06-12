@@ -8,6 +8,7 @@ import librosa.display
 from librosa.core import audio
 
 import soundfile as sf
+import soundfile
 
 from glob import glob
 
@@ -23,9 +24,16 @@ import scipy
 from scipy.io.wavfile import write
 from scipy import signal
 from scipy.signal import butter, lfilter, filtfilt
+from scipy.io import wavfile
+from scipy.signal import fftconvolve
+
 import random
 
 import subprocess
+
+import colorednoise as cn
+
+
 
 #from PESQ import pesq_from_paths
 #from score import calculate_fwSNRseg
@@ -294,7 +302,114 @@ def add_white_noise(input_filename, output_filename, desired_snr):
     # Save the modified audio signal to the output file
     sf.write(output_filename, noisy_signal, sr)
 
-def time_stretch(filename, speed_factor, output_file=None):
+def plot_power_spectral_density(noise, sample_rate):
+    # Compute the FFT of the noise
+    fft_noise = np.fft.fft(noise)
+    
+    # Compute the power spectral density
+    psd = np.abs(fft_noise) ** 2
+    
+    # Compute the frequencies
+    freqs = np.fft.fftfreq(len(noise), 1 / sample_rate)
+    
+    # Plot the power spectral density (in decibels)
+    plt.figure()
+    plt.xlim(0, 8000)
+    plt.plot(freqs, 10 * np.log10(psd))
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Power spectral density (dB)')
+    plt.show()
+
+def add_noise(audio_file, output_file, snr, noise_type=None, noise_file=None):
+    # Load the original audio file
+    signal, audio_sr = librosa.load(audio_file, sr = None)
+    
+    # Remove silence from the start and end of the signal
+    trimmed_signal, _ = librosa.effects.trim(signal)
+
+    signal_power =  np.sum(trimmed_signal ** 2) / trimmed_signal.size
+    
+    if noise_file is not None:
+        # Add noise from the provided noise file
+        noise, noise_sr = librosa.load(noise_file, sr = None)
+        if audio_sr != noise_sr:
+            noise = librosa.resample(noise, noise_sr, audio_sr)
+
+
+        noise_power =   np.sum(noise ** 2) / noise.size
+        scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (snr / 10))
+
+        noise_adjusted = scaling_factor * noise
+
+        if len(noise_adjusted) < len(signal):
+            noise_adjusted = np.pad(noise_adjusted, (0, len(signal) - len(noise_adjusted)), mode='wrap')
+        elif len(noise_adjusted) > len(signal):
+            noise_adjusted = noise_adjusted[:len(signal)]
+
+        noisy_audio = signal + noise_adjusted
+
+    else:
+        # Generate and add noise based on the noise type
+        if noise_type == 1:  # White noise
+            # Generate white noise
+            noise = np.random.normal(0, 1, signal.shape)
+
+        elif noise_type == 2:  # Rose noise (1/f noise)
+            # Generate rose noise
+            #input values
+            beta = 1         # the exponent: 0=white noite; 1=pink noise;  2=red noise (also "brownian noise")
+            samples = signal.shape  # number of samples to generate (time series extension)
+            noise = cn.powerlaw_psd_gaussian(beta, samples)
+
+        elif noise_type == 3:  # Brown noise (1/f^2 noise)
+            # Generate brown noise
+            #input values
+            beta = 2         # the exponent: 0=white noite; 1=pink noise;  2=red noise (also "brownian noise")
+            samples = signal.shape  # number of samples to generate (time series extension)
+            #noise = np.cumsum(np.random.normal(size=len(signal)))
+            noise = cn.powerlaw_psd_gaussian(beta, samples)
+
+        else:
+            raise ValueError("Invalid noise type. Use 1 for white, 2 for rose, or 3 for brown noise.")
+
+        noise_power = np.sum(noise ** 2) / noise.size
+
+        # Calculate the scaling factor for the desired SNR level
+        scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (-snr / 10))
+
+        # Scale the noise
+        noise = noise * scaling_factor
+
+        # Add the noise to the original signal
+        noisy_audio = signal + noise
+
+
+    # Save the resulting noisy signal to a new audio file
+    soundfile.write(output_file, noisy_audio, audio_sr)
+
+def RIR_Filtering(input_audio, output_audio, impulse_response_txt):
+
+    # Read audio file
+    sample_rate, audio_data = wavfile.read(input_audio)
+
+    # Read impulse response samples from text file
+    with open(impulse_response_txt, 'r') as f:
+        impulse_response = np.array([float(line.strip()) for line in f.readlines()])
+
+    # Apply convolution
+    convolved_audio = fftconvolve(audio_data, impulse_response, mode='same')
+
+    # Normalize the convolved audio
+    convolved_audio = (convolved_audio / np.max(np.abs(convolved_audio)) * np.iinfo(np.int16).max).astype(np.int16)
+
+    # Save the convolved audio to output file
+    wavfile.write(output_audio, sample_rate, convolved_audio)
+
+# Example usage:
+#apply_room_impulse_response('upc_ca_ona_100000.wav', 'upc_ca_ona_100000RIR.wav', '../program_samples/AIR_Database/air_binaural_aula_carolina_0_1_1_90_3.txt')
+
+
+def time_stretch(filename, output_file, speed_factor):
     # Load the audio file
     audio, sample_rate = librosa.load(filename, sr=None)
 
@@ -302,10 +417,8 @@ def time_stretch(filename, speed_factor, output_file=None):
     stretched_audio = librosa.effects.time_stretch(audio, speed_factor)
 
     # Save the transformed audio file
-    if output_file:
-        sf.write(output_file, stretched_audio, sample_rate)
-    else:
-        return stretched_audio, sample_rate
+    sf.write(output_file, stretched_audio, sample_rate)
+
     
 def frequency_mask(filename, output_file=None, frequency_center=None, width=None):
     # Load the audio file

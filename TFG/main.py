@@ -13,7 +13,7 @@ from equalizer import Equalizer
 from spliceout import spliceout
 from mp3compression import MP3Compression
 from pitch_shift import Pitch_shift
-from add_white_noise import Add_white_noise
+from TFG.add_noise import Add_noise
 from time_stretch import Time_stretch
 from frequency_mask import Frequency_Mask
 from tqdm import tqdm
@@ -40,7 +40,7 @@ methods = {
     '4': ('mp3_compression', MP3Compression(min_quality=0, max_quality=9)),
     '5': ('splice_out', spliceout(types=[1,2,3], min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=2, min_snr=0, max_snr=40)),
     '6': ('pitch_shift', Pitch_shift(min_shift=0.5, max_shift=2)),
-    '7': ('white_noise', Add_white_noise(min_snr=0, max_snr=40)),
+    '7': ('add_noise', Add_noise(min_snr=0, max_snr=40, max_type=0, min_type=2,noise_folder=None)),
     '8': ('time_stretch', Time_stretch(min_factor=0.3, max_factor=3)),
     '9': ('frequency_mask', Frequency_Mask(min_frequency_center = 100, max_frequency_center = 4000))
 }

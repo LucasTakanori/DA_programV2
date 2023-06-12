@@ -9,3 +9,4 @@ vosk
 torchmetrics 
 pydub
 tqdm
+colorednoise
