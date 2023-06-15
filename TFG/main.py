@@ -138,14 +138,14 @@ with open(output_tsv_path, "a", newline="") as tsv_outfile:
             mp3_audio = AudioSegment.from_mp3(input_file)
             wav_audio_file = os.path.splitext(audio_file)[0] + ".wav"
             wav_input_file = os.path.join(input_folder, wav_audio_file)
-            mp3_audio.set_frame_rate(16000).export(wav_input_file, format="wav")
+            mp3_audio.set_frame_rate(48000).export(wav_input_file, format="wav")
             os.remove(input_file)  # Delete the original MP3 file
-        elif frame_rate != 16000:
-            # Load the audio data and downsample it to 16kHz
-            y, _ = librosa.load(input_file, sr=16000)
+        elif frame_rate != 48000:
+            # Load the audio data and downsample it to 48kHz
+            y, _ = librosa.load(input_file, sr=48000)
             
             # Save the downsampled audio as a new WAV file
-            soundfile.write(input_file, y, 16000, subtype='PCM_16')
+            soundfile.write(input_file, y, 48000, subtype='PCM_16')
             
         else:
             wav_input_file = input_file

@@ -10,3 +10,4 @@ torchmetrics
 pydub
 tqdm
 colorednoise
+pyrubberband

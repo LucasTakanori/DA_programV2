@@ -38,7 +38,7 @@ import colorednoise as cn
 #from PESQ import pesq_from_paths
 #from score import calculate_fwSNRseg
 
-OUTPUT_SAMPLING_RATE = 16000
+OUTPUT_SAMPLING_RATE = 48000
 
 def load_file(filename):
     return librosa.load(glob(filename)[0],sr=None)
@@ -443,7 +443,7 @@ def frequency_mask(filename, output_file=None, frequency_center=None, width=None
         return masked_audio, sample_rate
 
 def mp3towav(input, output):
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "16000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "48000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def plot_waveform_and_stft(original_file, transformed_file):
     # Load the original audio file
@@ -488,10 +488,10 @@ def plot_waveform_and_stft(original_file, transformed_file):
     #fwSNRseg_score = calculate_fwSNRseg(deg_file_path)
     #return fwSNRseg_score #,pesq_score 
 
-def convert_to_16k(input_file):
+def convert_to_48k(input_file):
     with wave.open(input_file, "rb") as wave_file:
         frame_rate = wave_file.getframerate()
-        if frame_rate != 16000:
+        if frame_rate != 48000:
             audio = AudioSegment.from_wav(input_file)
-            audio_16k = audio.set_frame_rate(16000)
-            audio_16k.export(input_file, format="wav")
+            audio_48k = audio.set_frame_rate(48000)
+            audio_48k.export(input_file, format="wav")
