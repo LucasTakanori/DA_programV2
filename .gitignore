@@ -95,6 +95,11 @@ DATABASE/timepercentage40
 
 DATABASE/output_folder/
 
+DATABASE/bitrate180/*
+DATABASE/bitrate8/*
+DATABASE/bitrate40/*
+DATABASE/bitrate24/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
