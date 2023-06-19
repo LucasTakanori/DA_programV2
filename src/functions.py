@@ -94,9 +94,6 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
         if end <= length:  # Verify if the range is within the file length
             random_ranges.append((int(start * fs), int(end * fs)))
 
-
-
-
     if type == 1:
         for start, end in random_ranges:
             y = np.delete(y, np.s_[start:end])
@@ -104,10 +101,14 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
         for start, end in random_ranges:
             y[start:end] = 0
     elif type == 3:
-        rms = calculate_rms(y)
-        noise_rms = calculate_desired_noise_rms(rms, snr)
+        trimmed_signal, _ = librosa.effects.trim(y)
+        signal_power =  np.sum(trimmed_signal ** 2) / trimmed_signal.size
         for start, end in random_ranges:
-            y[start:end] = set_noise(y[start:end], noise_rms)
+            noise = np.random.normal(0, 1, y[start:end])
+            noise_power = np.sum(noise ** 2) / noise.size
+            scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (-snr / 20))
+            noise = noise * scaling_factor
+            y[start:end] = y[start:end] + noise
     else:
         print("Invalid type input")
 
@@ -375,7 +376,7 @@ def add_noise(audio_file, output_file, snr, noise_type=None, noise_file=None):
         noise_power = np.sum(noise ** 2) / noise.size
 
         # Calculate the scaling factor for the desired SNR level
-        scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (-snr / 10))
+        scaling_factor = np.sqrt((signal_power / noise_power) * 10 ** (-snr / 20))
 
         # Scale the noise
         noise = noise * scaling_factor
