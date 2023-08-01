@@ -13,7 +13,7 @@ from equalizer import Equalizer
 from spliceout import spliceout
 from mp3compression import MP3Compression
 from pitch_shift import Pitch_shift
-from TFG.add_noise import Add_noise
+from add_noise import Add_noise
 from time_stretch import Time_stretch
 from frequency_mask import Frequency_Mask
 from tqdm import tqdm
