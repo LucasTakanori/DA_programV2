@@ -12,27 +12,36 @@
 #guardar en csv NXM --path --text --score --tipus --parametres 
 
 from clipping import Clipping
-from vltp import VLTP
-from equalizer import Equalizer
-from spliceout import spliceout
+from spliceout import Spliceout
 from mp3compression import MP3Compression
+from White_noise import White_Noise
+from Pink_noise import Pink_Noise
+from Brown_noise import Brown_Noise
+from frequency_mask import Frequency_Mask
 
-input_file = "../testfiles/UPC_CA_ONA_WAV/upc_ca_ona_100000.wav"
-output_file = "../testfiles/CLASSTEST/upc_ca_ona_100000"
+
+input_file = "upc_ca_ona_100000.wav"
+output_file = "test/upc_ca_ona_100000"
 extension = ".wav"
 types = [1, 2, 3]
 
 # Initialize augmentation objects
-clipping = Clipping(min_percentile_threshold=0, max_percentile_threshold=40)
-vltp = VLTP(min_alpha=0.7, max_alpha=1.4)
-equalizer = Equalizer(gain_min=-40, gain_max=40)
-mp3_compression = MP3Compression(min_quality=0, max_quality=9)
-splice_out = spliceout(types, min_time_range=0.1, max_time_range=0.4, min_times=1, max_times=8 ,min_snr=0, max_snr=40)
+clipping = Clipping()
+mp3_compression = MP3Compression()
+White_noise = White_Noise()
+Pink_noise = Pink_Noise()
+Brown_noise = Brown_Noise()
+frequency_mask = Frequency_Mask()
+splice_out = Spliceout()
 
 # Apply augmentation
-clipping.apply(input_file, output_file+"CLIPPING"+extension, clipping.randomize())
-vltp.apply(input_file, output_file+"vltp"+extension, vltp.randomize())
-equalizer.apply(input_file, output_file+"equalizer"+extension, equalizer.randomize())
-mp3_compression.apply(input_file, output_file+"mp3"+extension, mp3_compression.randomize())
-splice_out.apply(input_file, output_file+"splice"+extension, *splice_out.randomize())
+
+clipping.apply(input_file, output_file+"CLIPPING"+extension, clipping.randomize()[0])
+mp3_compression.apply(input_file, output_file+"mp3"+extension, mp3_compression.randomize()[0])
+White_noise.apply(input_file, output_file+"WHITE"+extension, White_noise.randomize()[0])
+Pink_noise.apply(input_file, output_file+"PINK"+extension, Pink_noise.randomize()[0])
+Brown_noise.apply(input_file, output_file+"BROWN"+extension, Brown_noise.randomize()[0])
+frequency_mask.apply(input_file, output_file+"FREQUENCY"+extension,frequency_mask.randomize()[0])
+splice_out.apply(input_file, output_file+"splice"+extension, splice_out.randomize()[0])
+
 
