@@ -79,7 +79,7 @@ def set_noise(y, noise_rms):
     return noise
 
 
-def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10):
+""" def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10):
     y, fs = load_file(filename)
     length = audio_length(filename)
     # Convert time_ranges from seconds to samples
@@ -118,6 +118,43 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
 
     # Print the output of random_ranges in seconds
     print("Splicing COMPLETED with type: " + str(type) + " times applied: " + str(times_to_apply) + " with ranges: " + str(random_ranges_seconds))
+ """
+def splice_out(filename, outputfile, type, times_to_apply ,time_percentage=10):
+    y, fs = librosa.load(filename, sr=None)
+    length = audio_length(filename)
+    # Convert time_ranges from seconds to samples
+    #ranges = [(int(start * fs), int(end * fs)) for start, end in time_ranges]
+
+    
+    random_ranges = []
+    for i in range(times_to_apply):
+        #start = random.uniform(0,length-time_length/1000)
+        start =  length/2
+        end =  start + (length*(time_percentage/100))
+        if end <= length:  # Verify if the range is within the file length
+            random_ranges.append((int(start * fs), int(end * fs)))
+
+    if type == 1:
+        for start, end in random_ranges:
+            y = np.delete(y, np.s_[start:end])
+    elif type == 2:
+        for start, end in random_ranges:
+            y[start:end] = 0
+    elif type == 3:
+        rms = calculate_rms(y)
+        noise_rms = calculate_desired_noise_rms(rms, time_percentage)
+        for start, end in random_ranges:
+            y[start:end] = set_noise(y[start:end], noise_rms)
+    else:
+        print("Invalid type input")
+
+    sf.write(outputfile, y, fs)  
+    # Convert random_ranges from samples to seconds
+    random_ranges_seconds = [(start / fs, end / fs) for start, end in random_ranges]
+
+    # Print the output of random_ranges in seconds
+    print("Splicing COMPLETED with type: " + str(type) + " times applied: " + str(times_to_apply) + " with ranges: " + str(random_ranges_seconds))
+
 
 #BACK TO WAV?
 #test mp3compression
@@ -127,7 +164,7 @@ def splice_out(filename, outputfile, type, times_to_apply , time_ranges, snr=10)
 #8->bad
 
 
-def mp3compression(inputfile, outputfile, quality=4):
+""" def mp3compression(inputfile, outputfile, quality=4):
     auxoutputfile = inputfile.split('.')[0] + "_" + str(quality) + ".mp3"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", inputfile, "-codec:a", "libmp3lame", "-q:a", str(quality), auxoutputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.run(["rm", outputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -135,9 +172,25 @@ def mp3compression(inputfile, outputfile, quality=4):
     mp3towav(auxoutputfile, outputfile)
     subprocess.run(["rm", auxoutputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    print("MP3 COMPRESSION COMPLETED with quality: " + str(quality))
+    print("MP3 COMPRESSION COMPLETED with quality: " + str(quality)) """
+
+def mp3towav(input, output):
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "48000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def mp3compression(inputfile, outputfile, bitrate):
+    auxoutputfile = inputfile.split('.')[0] + "_" + str(bitrate) + ".mp3"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", inputfile, "-codec:a", "libmp3lame", "-b:a", str(bitrate)+"k", auxoutputfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    if os.path.exists(outputfile):
+        os.remove(outputfile)
+
+    mp3towav(auxoutputfile, outputfile)
+    
+    if os.path.exists(auxoutputfile):
+        os.remove(auxoutputfile)
+
+    print("MP3 COMPRESSION COMPLETED with CBR bitrate: " + str(bitrate))
 
 
 def clipping(filename, outputfile, percentile_threshold=10.0):
@@ -149,7 +202,7 @@ def clipping(filename, outputfile, percentile_threshold=10.0):
         #print(lower_threshold)
         #print(upper_threshold)
         samples = np.clip(samples, lower_threshold, upper_threshold)
-        print(fs)
+        #print(fs)
         sf.write(outputfile, samples,fs)
         print("Clipping COMPLETED with percentile threshold: " +str(percentile_threshold))
 
@@ -384,7 +437,7 @@ def add_noise(audio_file, output_file, snr, noise_type=None, noise_file=None):
         # Add the noise to the original signal
         noisy_audio = signal + noise
 
-
+    print("NOISE ADDING COMPLETED with type: " + str(noise_type) + " SNR: " + str(snr))
     # Save the resulting noisy signal to a new audio file
     soundfile.write(output_file, noisy_audio, audio_sr)
 
@@ -439,13 +492,14 @@ def frequency_mask(filename, output_file=None, frequency_center=None, width=None
 
     # Save the transformed audio file
     if output_file:
+        print("FREQUENCY MASKING COMPLETED with frequency center: " + str(frequency_center) + " width: " + str(width))
         sf.write(output_file, masked_audio, sample_rate)
     else:
         return masked_audio, sample_rate
 
-def mp3towav(input, output):
+""" def mp3towav(input, output):
     subprocess.run(["ffmpeg", "-y", "-loglevel", "quiet", "-i", input, "-ar", "48000", output], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
+ """
 def plot_waveform_and_stft(original_file, transformed_file):
     # Load the original audio file
     y1, sr1 = librosa.load(original_file)
