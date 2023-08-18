@@ -1,6 +1,7 @@
 import os
 import csv
 import random
+import shutil
 from clipping import Clipping
 from spliceout import Spliceout
 from mp3compression import MP3Compression
@@ -86,7 +87,7 @@ with open(tsv_file_path, 'r') as tsv_file:
         transcripts[audio_file] = transcript
 
 # Apply the selected augmentation methods randomly
-total_augmentations = len(audio_files) * num_augmentations
+total_augmentations = len(audio_files) * (num_augmentations-1)
 progress_bar = tqdm(total=total_augmentations, desc="Augmenting", unit="file", position=0, leave=True)
 
 
@@ -97,9 +98,10 @@ with open(os.path.join(output_folder, "output.tsv"), "a", newline="") as tsv_out
 
     for audio_file in audio_files:
         input_file = os.path.join(input_folder, audio_file)
-
+        shutil.copyfile(input_file, output_folder+"/"+audio_file)
+        tsv_writer.writerow([audio_file, transcripts[audio_file]])
         # Apply augmentations
-        for i in range(num_augmentations):
+        for i in range(num_augmentations-1):
             method_key = random.choice(selected_methods)
             method_name, method_instance = methods[method_key]
             output_file = os.path.join(output_folder, f"{os.path.splitext(audio_file)[0]}_{method_name}_{i+1}.wav")
