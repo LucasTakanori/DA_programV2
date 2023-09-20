@@ -3,7 +3,7 @@ from audio_augmentation import AudioAugmentation
 from functions import RIR_Filtering
 import os
 
-class MP3Compression(AudioAugmentation):
+class RIR_filtering(AudioAugmentation):
     def __init__(self, impulse_folder):
         self.impulse_folder = impulse_folder
 

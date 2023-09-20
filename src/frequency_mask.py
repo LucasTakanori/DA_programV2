@@ -2,7 +2,7 @@ from audio_augmentation import AudioAugmentation
 from functions import frequency_mask
 import random
 class Frequency_Mask(AudioAugmentation):
-    def __init__(self, frequency_center=1000):
+    def __init__(self, frequency_center):
         self.frequency_values = [
             (100, 'easy'),
             (200, 'easy'),
@@ -18,5 +18,5 @@ class Frequency_Mask(AudioAugmentation):
         frequency_mask(input_file, output_file, self.frequency_center, width)
 
     def randomize(self):
-        random_pair = random.choice(self.frequency_values)
-        return random_pair
+        frequency_center = random.choice(self.frequency_values)
+        return frequency_center

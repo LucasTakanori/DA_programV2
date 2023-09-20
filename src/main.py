@@ -9,6 +9,11 @@ from White_noise import White_Noise
 from Pink_noise import Pink_Noise
 from Brown_noise import Brown_Noise
 from frequency_mask import Frequency_Mask
+from pitch_shift import Pitch_shift
+from vtlp import VTLP
+from time_stretch import Time_stretch
+from equalizer import Equalizer
+from RIR_Filtering import RIR_filtering
 from tqdm import tqdm
 
 # Gather user input
@@ -20,9 +25,14 @@ methods = {
     '5': ('Brown_noise', Brown_Noise()),
     '6': ('frequency_mask', Frequency_Mask()),
     '7': ('splice_out', Spliceout()),
+    '8': ('pitch_shift', Pitch_shift()),
+    '9': ('time_stretch', Time_stretch()),
+    '10': ('vtlp', VTLP()),
+    '11': ('equalizer', Equalizer()),
+    '12': ('RIR_Filtering', RIR_filtering())
 }
 
-selected_methods_input = "1,3,4,5,6,7"#input("Enter the augmentation method numbers (1-7) separated by commas: ")
+selected_methods_input = "1,2,3,4,5,6,7"#input("Enter the augmentation method numbers (1-12) separated by commas: ")
 
 # Validate the selected methods
 selected_methods = []
