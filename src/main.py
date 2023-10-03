@@ -28,8 +28,10 @@ methods = {
     '8': ('pitch_shift', Pitch_shift()),
     '9': ('time_stretch', Time_stretch()),
     '10': ('vtlp', VTLP()),
-    '11': ('equalizer', Equalizer()),
-    '12': ('RIR_Filtering', RIR_filtering())
+
+#need to define tags and check how to implement
+#    '11': ('equalizer', Equalizer()),              
+#    '12': ('RIR_Filtering', RIR_filtering())
 }
 
 selected_methods_input = "1,2,3,4,5,6,7"#input("Enter the augmentation method numbers (1-12) separated by commas: ")

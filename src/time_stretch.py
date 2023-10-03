@@ -2,7 +2,7 @@ from audio_augmentation import AudioAugmentation
 from functions import time_stretch
 import random
 class Time_stretch(AudioAugmentation):
-    def __init__(self, factor):
+    def __init__(self):
         self.factor = [
             (1.2, 'easy'),
             (1.15, 'easy'),
@@ -11,7 +11,6 @@ class Time_stretch(AudioAugmentation):
             (0.95, 'easy'),
             (0.8, 'easy')
         ]
-        self.factor = factor
 
     def apply(self, input_file, output_file, factor):
         time_stretch(input_file, output_file, factor)

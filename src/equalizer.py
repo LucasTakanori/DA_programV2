@@ -3,8 +3,7 @@ from audio_augmentation import AudioAugmentation
 from functions import equalizer
 
 class Equalizer(AudioAugmentation):
-    def __init__(self, gains):
-        self.gains = gains
+    def __init__(self):
 
         self.type = [
             ('lowpass', 'easy'),
