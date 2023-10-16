@@ -2,6 +2,7 @@ import os
 import csv
 import random
 import shutil
+import datetime
 from clipping import Clipping
 from spliceout import Spliceout
 from mp3compression import MP3Compression
@@ -34,16 +35,16 @@ methods = {
 #    '12': ('RIR_Filtering', RIR_filtering())
 }
 
-selected_methods_input = "1,2,3,4,5,6,7"#input("Enter the augmentation method numbers (1-12) separated by commas: ")
+selected_methods_input = "1,2,3,4,5,6,7,8,9,10"#input("Enter the augmentation method numbers (1-12) separated by commas: ")
 
 # Validate the selected methods
 selected_methods = []
 for method in selected_methods_input.split(","):
     method = method.strip()
-    if method.isdigit() and 1 <= int(method) <= 7:
+    if method.isdigit() and 1 <= int(method) <= 12:
         selected_methods.append(method)
     else:
-        print("Error: Invalid input format. Please enter method numbers (1-7) separated by commas.")
+        print("Error: Invalid input format. Please enter method numbers (1-12) separated by commas.")
         exit()
 
 tsv_file_path = "../testfiles/RCV/RCV.tsv"#input("Enter the TSV file path: ")
@@ -65,19 +66,14 @@ output_folder = "../testfiles/test"#input("Enter the output folder path: ")
 # Validate the output folder
 if not os.path.exists(output_folder):
     os.makedirs(output_folder, exist_ok=True)
-
-output_tsv_path = "../testfiles/test/output.tsv"  #input("Enter the TSV output file path: ")
-
-if os.path.exists(output_tsv_path):
-    os.remove(output_tsv_path)
-
-# Check if the output folder has files, and create a subfolder if necessary
-if len(os.listdir(output_folder)) > 0:
-    new_subfolder = os.path.join(output_folder, "augmented_files")
+elif len(os.listdir(output_folder)) > 0:
+    # If the output folder exists and is not empty, create a new subfolder
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")  # Get the current date and time
+    new_subfolder = os.path.join(output_folder, f"augmented_files_{timestamp}")
     os.makedirs(new_subfolder, exist_ok=True)
     output_folder = new_subfolder
 
-num_augmentations = 2#int(input("Enter the number of times you want to augment the database: "))
+num_augmentations = 2 #int(input("Enter the number of times you want to augment the database: "))
 
 # Validate the num_augmentations
 try:
@@ -104,14 +100,19 @@ progress_bar = tqdm(total=total_augmentations, desc="Augmenting", unit="file", p
 
 
 # Open the output TSV file using csv.writer
-with open(os.path.join(output_folder, "output.tsv"), "a", newline="") as tsv_outfile:
+with open(os.path.join(output_folder, "output.tsv"), "w", newline="") as tsv_outfile:
     tsv_writer = csv.writer(tsv_outfile, delimiter="\t")
     tsv_writer.writerow(["name_of_the_outputfile", "transcript", "augmentation_method", "randomize_value", "difficulty"])
 
+    # First write all the original files to the TSV
     for audio_file in audio_files:
         input_file = os.path.join(input_folder, audio_file)
-        shutil.copyfile(input_file, output_folder+"/"+audio_file)
+        shutil.copyfile(input_file, os.path.join(output_folder, audio_file))
         tsv_writer.writerow([audio_file, transcripts[audio_file]])
+
+    # Then write all the augmentations to the TSV
+    for audio_file in audio_files:
+        input_file = os.path.join(input_folder, audio_file)
         # Apply augmentations
         for i in range(num_augmentations-1):
             method_key = random.choice(selected_methods)
@@ -124,7 +125,7 @@ with open(os.path.join(output_folder, "output.tsv"), "a", newline="") as tsv_out
             method_instance.apply(input_file, output_file, randomize_value[0])
 
             # Write the relevant information to the TSV file
-            tsv_writer.writerow([output_file, transcripts[audio_file], method_name, randomize_value[0], randomize_value[1]])
+            tsv_writer.writerow([os.path.basename(output_file), transcripts[audio_file], method_name, randomize_value[0], randomize_value[1]])
 
             progress_bar.update(1)  # Update the progress bar
 

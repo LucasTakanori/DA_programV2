@@ -16,5 +16,5 @@ class VTLP(AudioAugmentation):
         vtlp(input_file, output_file, alpha=alpha)
 
     def randomize(self):
-        alpha = random.choice(self.factor)
+        alpha = random.choice(self.alpha)
         return alpha

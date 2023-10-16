@@ -307,7 +307,7 @@ def vtlp(input_wav_file, output_wav_file, alpha=1.0, f_high=None):
                                                  n_iter=128,
                                                  length=len(y))
     end = time.time()
-    print(end - start)
+    #print(end - start)
     # Save the output .wav file
     sf.write(output_wav_file, y_hat, sr)
     print("VTLP COMPLETED with alpha: " +str(alpha))
@@ -322,8 +322,9 @@ def pitch_shift(filename, output_file, pitch_factor):
     pitch_semitones = 12 * np.log2(pitch_factor)
 
     # Apply pitch shifting to the whole audio file
-    shifted_audio = librosa.effects.pitch_shift(audio, sample_rate, n_steps=pitch_semitones)
+    shifted_audio = librosa.effects.pitch_shift(audio, sr=sample_rate, n_steps=pitch_semitones)
 
+    print("PITCH SHIFTING COMPLETED with Pitch Factor: " + str(pitch_factor))
     # Save the transformed audio file
     if output_file:
         sf.write(output_file, shifted_audio, sample_rate)
@@ -468,7 +469,9 @@ def time_stretch(filename, output_file, speed_factor):
     audio, sample_rate = librosa.load(filename, sr=None)
 
     # Apply time stretching to the whole audio file
-    stretched_audio = librosa.effects.time_stretch(audio, speed_factor)
+    stretched_audio = librosa.effects.time_stretch(audio, rate=speed_factor)
+
+    print("TIME STRETCHING COMPLETED with Speed Factor: " + str(speed_factor))
 
     # Save the transformed audio file
     sf.write(output_file, stretched_audio, sample_rate)

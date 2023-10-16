@@ -3,6 +3,9 @@
 /testfiles/CV000/CV000WAV
 /testfiles/
 testfiles/CV000/*.wav:Zone.Identifier
+
+DATABASE/
+
 DATABASE/SNR0/*
 DATABASE/SNR10/*
 DATABASE/SNR15/*

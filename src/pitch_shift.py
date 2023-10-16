@@ -12,9 +12,9 @@ class Pitch_shift(AudioAugmentation):
             (0.8, 'easy')
         ]
 
-    def apply(self, input_file, output_file, pitch_shift):
-        pitch_shift(input_file, output_file, pitch_shift)
+    def apply(self, input_file, output_file, pitch_shift_value):
+        pitch_shift(input_file, output_file, pitch_shift_value)
 
     def randomize(self):
-        shift = random.choice(self.factor)
+        shift = random.choice(self.shift)
         return shift
