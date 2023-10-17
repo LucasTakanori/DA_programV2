@@ -11,15 +11,32 @@ To install DA_programV2, follow these steps:
 1. Clone the repository: `git clone https://github.com/LucasTakanori/DA_programV2`
 2. Install the required libraries and dependencies: `pip install -r requirements.txt`
 3. Install ffmpeg from `http://ffmpeg.org/download.html`
-4. Install Pyrubberband from 'http://pyruberbandFILLL'
 
 ## Usage
 
-To use DA_programV2, run the main.py script from the src folder. Here's an example of usage:
+To use DA_programV2, run the main.py script from the src folder. 
 
+First the program will ask for the agumentation methods that we want to use separated by comas.
+
+Second the program will ask for an input tsv file with the original database namefiles and transcriptions.
+
+Third the program will ask for an input folder with the files to augment.
+
+Fourth the program will ask for an output folder where the augmented files will be stored.
+
+Finally the program will ask for the number of times that the database will be augmented.
+Here's an example of usage:
+
+```bash
+lucastakanori@DESKTOP-5CD06JF:~/DA_programV2/src$ python3 main.py
+Enter the augmentation method numbers (1-12) separated by commas: 1,2,3,4
+Enter the TSV file path: ../testfiles/RCV/RCV.tsv
+Enter the input folder path: ../testfiles/RCV
+Enter the output folder path: ../testfiles/test
+Enter the number of times you want to augment the database: 2
 ```
-àsdasd
-```
+
+If you need to apply the script multiple times it's faster to hardcode the preferred parameters into the script file.
 ### EXAMPLE TSV OUTPUT WITH 10 FILES NUM AUGMENTATION = 2
 
 | name_of_the_outputfile                         | transcript                                                                                                              | augmentation_method | randomize_value | difficulty |
