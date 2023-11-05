@@ -8,7 +8,7 @@ This software was developed in Ubuntu 22.04.2 LTS and uses Python 3.10.6.
 
 To install DA_programV2, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/LucasTakanori/DA_programV2`
+1. Clone only the main branch of the repository: `git clone --single-branch --branch main https://github.com/LucasTakanori/DA_programV2`
 2. Install the required libraries and dependencies: `pip install -r requirements.txt`
 3. Install ffmpeg from `http://ffmpeg.org/download.html`
 
