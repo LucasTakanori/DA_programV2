@@ -1,0 +1,15 @@
+filename	transcription	 augmentation_method	randomize_value 	difficulty	
+upc_ca_ona_100000.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un
+CLIPPING_20.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	clipping	20.0	medium
+CLIPPING_40.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	clipping	40.0	hard
+FREQUENCY_MASKING400.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	frequency_masking	400	medium
+FREQUENCY_MASKING1500.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	frequency_masking	1500	hard
+MP3_8.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	MP3_COMPRESSION	8	medium
+MP3_24.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	MP3_COMPRESSION	24	easy
+NOISE_SNR0.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	white_noise	0	hard
+NOISE_SNR20.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	white_noise	20.0	medium
+SPLICE_OUT_10.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	splice_out	10	medium
+SPLICE_OUT_30.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	splice_out	30	hard
+TIME_STRETCHING.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	time_stretching	1.4	easy
+VTLP.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	VTLP	1.2	easy
+PITCH_SHIFTING.wav	igualment la regulació de la conservació de la història clínica permetrà resoldre casos que a hores d'ara van arribant d'un en un	pitch_shifting	0.8	easy
