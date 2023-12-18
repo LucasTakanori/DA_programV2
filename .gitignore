@@ -1,7 +1,5 @@
 *.wav:Zone.Identifier
 
-testfiles/
-
 DATABASE/
 
 # Byte-compiled / optimized / DLL files
