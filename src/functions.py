@@ -33,6 +33,8 @@ import subprocess
 
 import colorednoise as cn
 
+import torch
+import torchaudio
 
 
 #from PESQ import pesq_from_paths
@@ -442,23 +444,54 @@ def add_noise(audio_file, output_file, snr, noise_type=None, noise_file=None):
     # Save the resulting noisy signal to a new audio file
     soundfile.write(output_file, noisy_audio, audio_sr)
 
-def RIR_Filtering(input_audio, output_audio, impulse_response_txt):
+# def RIR_Filtering(input_audio, output_audio, impulse_response_txt):
 
-    # Read audio file
-    sample_rate, audio_data = wavfile.read(input_audio)
+#     # Read audio file
+#     sample_rate, audio_data = wavfile.read(input_audio)
 
-    # Read impulse response samples from text file
-    with open(impulse_response_txt, 'r') as f:
-        impulse_response = np.array([float(line.strip()) for line in f.readlines()])
+#     # Read impulse response samples from text file
+#     with open(impulse_response_txt, 'r') as f:
+#         impulse_response = np.array([float(line.strip()) for line in f.readlines()])
 
-    # Apply convolution
-    convolved_audio = fftconvolve(audio_data, impulse_response, mode='same')
+#     # Apply convolution
+#     convolved_audio = fftconvolve(audio_data, impulse_response, mode='same')
 
-    # Normalize the convolved audio
-    convolved_audio = (convolved_audio / np.max(np.abs(convolved_audio)) * np.iinfo(np.int16).max).astype(np.int16)
+#     # Normalize the convolved audio
+#     convolved_audio = (convolved_audio / np.max(np.abs(convolved_audio)) * np.iinfo(np.int16).max).astype(np.int16)
 
-    # Save the convolved audio to output file
-    wavfile.write(output_audio, sample_rate, convolved_audio)
+#     # Save the convolved audio to output file
+#     wavfile.write(output_audio, sample_rate, convolved_audio)
+import torchaudio
+
+def resample_audio(input_filename, target_sample_rate):
+    # Load the audio file
+    waveform, sample_rate = torchaudio.load(input_filename)
+
+    # Create a resample transform
+    resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sample_rate)
+
+    # Apply the resample transform to the waveform
+    resampled_waveform = resampler(waveform)
+
+    return resampled_waveform, target_sample_rate
+
+
+
+def RIR_Filtering(input_filename, output_filename, rir_filepath):
+    # Load the audio and the RIR files
+    waveform, sample_rate = torchaudio.load(input_filename)
+    rir_waveform, rir_sample_rate = torchaudio.load(rir_filepath)
+
+    # If the RIR file has a different sample rate, resample it
+    if rir_sample_rate != sample_rate:
+        rir_waveform, _ = resample_audio(rir_filepath, sample_rate)
+
+    # Apply the RIR to the audio file
+    augmented_waveform = torch.nn.functional.conv1d(waveform[None, :], rir_waveform[None, :])[0]
+
+    # Save the augmented audio to the output file
+    torchaudio.save(output_filename, augmented_waveform, sample_rate)
+
 
 # Example usage:
 #apply_room_impulse_response('upc_ca_ona_100000.wav', 'upc_ca_ona_100000RIR.wav', '../program_samples/AIR_Database/air_binaural_aula_carolina_0_1_1_90_3.txt')
