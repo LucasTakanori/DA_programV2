@@ -34,7 +34,7 @@ methods = {
 #    '12': ('equalizer', Equalizer()),  
 }
 
-selected_methods_input = input("Enter the augmentation method numbers (1-10) separated by commas: ") # "1,2,3,4,5,6,7,8,9,10"
+selected_methods_input = input("Enter the augmentation method numbers (1-11) separated by commas: ") # "1,2,3,4,5,6,7,8,9,10"
 
 # Validate the selected methods
 selected_methods = []
