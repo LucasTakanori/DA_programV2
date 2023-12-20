@@ -35,7 +35,7 @@ import colorednoise as cn
 
 import torch
 import torchaudio
-
+import torchaudio.functional as F
 
 #from PESQ import pesq_from_paths
 #from score import calculate_fwSNRseg
@@ -461,8 +461,6 @@ def add_noise(audio_file, output_file, snr, noise_type=None, noise_file=None):
 
 #     # Save the convolved audio to output file
 #     wavfile.write(output_audio, sample_rate, convolved_audio)
-import torchaudio
-
 def resample_audio(input_filename, target_sample_rate):
     # Load the audio file
     waveform, sample_rate = torchaudio.load(input_filename)
@@ -476,21 +474,34 @@ def resample_audio(input_filename, target_sample_rate):
     return resampled_waveform, target_sample_rate
 
 
-
 def RIR_Filtering(input_filename, output_filename, rir_filepath):
-    # Load the audio and the RIR files
-    waveform, sample_rate = torchaudio.load(input_filename)
-    rir_waveform, rir_sample_rate = torchaudio.load(rir_filepath)
+    device = torch.device("cpu")#"cuda" if torch.cuda.is_available() else "cpu")
+
+    waveform, original_sample_rate = torchaudio.load(input_filename)
+    #waveform = waveform.to(device)  # Move the waveform tensor to the GPU
+
+    sample_rate = original_sample_rate
+
+    rir_raw, rir_sample_rate = torchaudio.load(rir_filepath)
+
+    #rir_raw = rir_raw.to(device)  # Move the RIR tensor to the GPU
 
     # If the RIR file has a different sample rate, resample it
     if rir_sample_rate != sample_rate:
-        rir_waveform, _ = resample_audio(rir_filepath, sample_rate)
+        rir , _ = resample_audio(rir_filepath, sample_rate)
+        rir = rir.to(device)  # Move the resampled RIR tensor to the GPU
+
+    #Fix and normalize raw rir vector
+    rir = rir_raw[:, int(sample_rate * 0.0) : int(sample_rate * 0.2)]
+    rir = rir / torch.linalg.vector_norm(rir, ord=2)
 
     # Apply the RIR to the audio file
-    augmented_waveform = torch.nn.functional.conv1d(waveform[None, :], rir_waveform[None, :])[0]
-
+    augmented_waveform = F.fftconvolve(waveform, rir)
+    print("RIR FILTERING COMPLETED WITH FILE: " + str(rir_filepath)+ "TO FILE: " + str(output_filename))
+    # Save the resulting noisy signal to a new audio file
     # Save the augmented audio to the output file
-    torchaudio.save(output_filename, augmented_waveform, sample_rate)
+    normalized_waveform = augmented_waveform / torch.max(torch.abs(augmented_waveform))
+    torchaudio.save(output_filename, normalized_waveform.cpu(), original_sample_rate, encoding = "PCM_S", format="wav")
 
 
 # Example usage:

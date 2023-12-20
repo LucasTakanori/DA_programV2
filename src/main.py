@@ -29,10 +29,9 @@ methods = {
     '8': ('pitch_shift', Pitch_shift()),
     '9': ('time_stretch', Time_stretch()),
     '10': ('vtlp', VTLP()),
-
-#need to define tags and check how to implement
-#    '11': ('equalizer', Equalizer()),              
-#    '12': ('RIR_Filtering', RIR_filtering())
+    '11': ('RIR_Filtering', RIR_filtering("../program_samples/AIR_Database_Mono"))
+#need to define tags for different equalizer settings
+#    '12': ('equalizer', Equalizer()),  
 }
 
 selected_methods_input = input("Enter the augmentation method numbers (1-10) separated by commas: ") # "1,2,3,4,5,6,7,8,9,10"
@@ -47,21 +46,21 @@ for method in selected_methods_input.split(","):
         print("Error: Invalid input format. Please enter method numbers (1-12) separated by commas.")
         exit()
 
-tsv_file_path = input("Enter the TSV file path: ") #"../testfiles/RCV/RCV.tsv"
+tsv_file_path = input("Enter the TSV file path: ") #"../DATABASE/lt400/lt400.tsv"
 
 # Validate the TSV file
 if not os.path.isfile(tsv_file_path):
     print("Error: The TSV file does not exist.")
     exit()
 
-input_folder = input("Enter the input folder path: ") #"../testfiles/RCV"
+input_folder = input("Enter the input folder path: ") #'../DATABASE/lt400'
 
 # Validate the input folder
 if not os.path.isdir(input_folder):
     print("Error: The input folder does not exist.")
     exit()
 
-output_folder = input("Enter the output folder path: ") #"../testfiles/test"
+output_folder = input("Enter the output folder path: ") #"../test"
 
 # Validate the output folder
 if not os.path.exists(output_folder):
@@ -73,7 +72,7 @@ elif len(os.listdir(output_folder)) > 0:
     os.makedirs(new_subfolder, exist_ok=True)
     output_folder = new_subfolder
 
-num_augmentations =  int(input("Enter the number of times you want to augment the database: ")) #2
+num_augmentations = int(input("Enter the number of times you want to augment the database: ")) #2
 
 # Validate the num_augmentations
 try:

@@ -22,6 +22,6 @@ class RIR_filtering(AudioAugmentation):
             # Create the full path of the selected audio file
             impulse_response_txt = os.path.join(self.impulse_folder, random_impulse)
 
-            return impulse_response_txt,
+            return impulse_response_txt, 'medium',
         else:
             raise ValueError("Invalid impulse_folder. Can't be None.")
